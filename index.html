@@ -6,7 +6,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@900&display=swap" rel="stylesheet">
   <title>Калькулятор матриц</title>
   
-  <!-- ========== КРАСНЫЙ КРУЖОК С ИНТЕГРАЛОМ ========== -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23800000'/%3E%3Ctext x='50' y='68' font-size='44' text-anchor='middle' fill='%23ffffff' font-weight='bold' font-family='Times New Roman, serif'%3E∫%3C/text%3E%3C/svg%3E">
   
   <style>
@@ -343,7 +342,7 @@
   <div class="main-content">
     <div id="calcSection">
       <div style="display:flex;gap:30px;align-items:flex-start;justify-content:center;flex-wrap:wrap;">
-        <!-- Матрица A -->
+        
         <div style="display:flex;flex-direction:column;align-items:center;">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
             <p style="font-size:20px;font-family:'Nunito',sans-serif;margin:0;color:#800;" id="matrixALabel">Матрица A</p>
@@ -470,7 +469,7 @@
 </div>
 
 <script>
-// Базовые функции матриц
+
 function buildGrid(id, rows, cols) {
   let cont = document.getElementById(id);
   cont.innerHTML = '';
@@ -517,7 +516,7 @@ document.getElementById('scalarModal').addEventListener('click',e=>{ if(e.target
 function calculate(op){ let A=readMatrix('matrixA'), B=readMatrix('matrixB'), rA=A.length,cA=A[0].length,rB=B.length,cB=B[0].length; if(op==='add'||op==='sub'){ if(rA!==rB||cA!==cB){ showError(`Размеры не совпадают: A(${rA}×${cA}) и B(${rB}×${cB})`); return; } let R=A.map((row,i)=>row.map((v,j)=> op==='add'? v+B[i][j] : v-B[i][j])); showMatrix(R,op==='add'?'A + B':'A − B'); } else if(op==='mul'){ if(cA!==rB){ showError(`Умножение невозможно: столбцы A(${cA}) ≠ строк B(${rB})`); return; } showMatrix(multiplyMatrices(A,B),'A × B'); } }
 function swapMatrices(){ let sRA=document.getElementById('rowCountA'),sCA=document.getElementById('colCountA'),sRB=document.getElementById('rowCountB'),sCB=document.getElementById('colCountB'); let vA=readMatrix('matrixA').flat(), vB=readMatrix('matrixB').flat(); let t=sRA.value; sRA.value=sRB.value; sRB.value=t; t=sCA.value; sCA.value=sCB.value; sCB.value=t; buildMatrix(); let inA=document.getElementById('matrixA').querySelectorAll('input'), inB=document.getElementById('matrixB').querySelectorAll('input'); for(let i=0;i<inA.length&&i<vB.length;i++) inA[i].value=vB[i]??0; for(let i=0;i<inB.length&&i<vA.length;i++) inB[i].value=vA[i]??0; }
 
-// ПОЛНЫЙ ПАРСЕР ЛЮБЫХ ВЫРАЖЕНИЙ
+
 function evaluateExpression() {
   let expr = document.getElementById('expressionInput').value.trim();
   if(!expr) { showError('Введите выражение'); return; }
@@ -625,7 +624,7 @@ function evaluateExpression() {
 }
 function isMatrix(x) { return Array.isArray(x) && x.length && Array.isArray(x[0]); }
 
-// Мультиязычность
+
 let lang = 'ru';
 const translations = {
   ru: { 
