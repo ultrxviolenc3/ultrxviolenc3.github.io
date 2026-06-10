@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@900&display=swap" rel="stylesheet">
+  <title>Калькулятор матриц</title>
+  
+  <!-- ========== КРАСНЫЙ КРУЖОК С ИНТЕГРАЛОМ ========== -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23800000'/%3E%3Ctext x='50' y='68' font-size='44' text-anchor='middle' fill='%23ffffff' font-weight='bold' font-family='Times New Roman, serif'%3E∫%3C/text%3E%3C/svg%3E">
+  
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fff; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+
+    .app-layout {
+      display: flex;
+      gap: 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px 32px 0 32px;
+    }
+    .sidebar-toc {
+      width: 240px;
+      flex-shrink: 0;
+      background: linear-gradient(145deg, #fff8f0 0%, #fff3e6 100%);
+      border-radius: 28px;
+      padding: 20px 12px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+      border: 1px solid #f0e2c5;
+    }
+    .sidebar-toc h3 {
+      font-family: 'Nunito', sans-serif;
+      color: #b8860b;
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-size: 1.3rem;
+      text-align: center;
+      border-bottom: 2px solid #daa520;
+      padding-bottom: 8px;
+    }
+    .toc-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .toc-list li { margin: 10px 0; }
+    .toc-list a {
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #5a3e1b;
+      background: #ffffffcc;
+      display: block;
+      padding: 8px 14px;
+      border-radius: 40px;
+      transition: all 0.2s;
+      border: 1px solid #f3e5cd;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+    }
+    .toc-list a:hover { background: #daa520; color: white; transform: translateX(4px); border-color: #daa520; }
+    
+    .lang-selector {
+      display: flex;
+      gap: 6px;
+      margin-top: 20px;
+    }
+    .lang-btn {
+      flex: 1;
+      padding: 8px 4px;
+      background: #800;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: bold;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .lang-btn:hover { background: #a00; transform: scale(0.98); }
+    .lang-btn.active { background: #daa520; color: #800; }
+    
+    .main-content { flex: 1; }
+
+    select {
+      border-radius: 20px;
+      border: 1px solid #aaa;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .op-btn {
+      width: 50px;
+      height: 40px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      border: 1px solid #800;
+      background-color: #fff;
+      color: #800;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .op-btn:hover { background-color: #800; color: #fff; }
+
+    .swap-btn {
+      width: 120px;
+      height: 35px;
+      font-size: 14px;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      border: 1px solid #daa520;
+      background-color: #fff;
+      color: #daa520;
+      border-radius: 20px;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+    .swap-btn:hover { background-color: #daa520; color: #fff; }
+
+    .clear-btn {
+      width: 100px;
+      height: 35px;
+      font-size: 13px;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      border: 1px solid #800;
+      background-color: #fff;
+      color: #800;
+      border-radius: 20px;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .clear-btn:hover { background-color: #800; color: #fff; }
+
+    .matrix-input {
+      width: 50px;
+      height: 40px;
+      text-align: center;
+      font-size: 16px;
+      border: none;
+      border-bottom: 1px solid #aaa;
+      background: transparent;
+      outline: none;
+      transition: border-bottom 0.15s, background 0.15s;
+    }
+    .matrix-input:focus {
+      border-bottom: 2px solid #800 !important;
+      background: rgba(136,0,0,0.04) !important;
+    }
+
+    .unary-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+      justify-content: center;
+      max-width: 340px;
+    }
+    .u-btn {
+      padding: 5px 11px;
+      font-size: 13px;
+      font-family: sans-serif;
+      cursor: pointer;
+      border: 1px solid #800;
+      background: #fff;
+      color: #800;
+      border-radius: 20px;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .u-btn:hover { background: #800; color: #fff; }
+
+    #scalarModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    #scalarModal.open { display: flex; }
+    #scalarBox, #powerBox {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      min-width: 240px;
+    }
+
+    #resultSection { display: none; padding: 10px 30px 30px; text-align: center; }
+    #resultTitle {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: #b8860b;
+      margin-bottom: 14px;
+      word-break: break-word;
+    }
+    #errorMsg { color: #c00; font-family: sans-serif; font-size: 15px; margin-bottom: 8px; }
+    .result-cell {
+      width: 56px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: #222;
+      border-bottom: 1px solid #ddd;
+    }
+    #scalarResult {
+      font-family: 'Nunito', sans-serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #800;
+      display: none;
+    }
+
+    .bottom-panel {
+      max-width: 1200px;
+      margin: 40px auto 20px;
+      padding: 0 30px;
+    }
+    .expr-panel {
+      background: linear-gradient(135deg, #800 0%, #600 100%);
+      border-radius: 24px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .expr-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #daa520;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .expr-input-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    #expressionInput {
+      flex: 1;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-family: 'Fira Code', monospace;
+      border: none;
+      border-radius: 40px;
+      outline: none;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      font-weight: 500;
+    }
+    .calc-btn {
+      width: 110px;
+      height: 50px;
+      font-size: 15px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      background-color: #daa520;
+      color: #fff;
+      border-radius: 40px;
+      transition: all 0.2s;
+    }
+    .calc-btn:hover { background-color: #b8860b; transform: scale(1.02); }
+    
+    .expr-hint {
+      font-size: 12px;
+      color: #daa520cc;
+      margin-top: 14px;
+      background: rgba(0,0,0,0.2);
+      padding: 8px 12px;
+      border-radius: 28px;
+      display: inline-block;
+    }
+    .info-card {
+      background: linear-gradient(135deg, #fff8f0 0%, #fff 100%);
+      border-radius: 24px;
+      padding: 20px;
+      border: 1px solid #daa52030;
+    }
+    .info-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: #800;
+      margin-bottom: 15px;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    .info-item {
+      background: #fff;
+      border-radius: 16px;
+      padding: 10px 14px;
+      border-left: 4px solid #b8860b;
+    }
+    .info-item strong { color: #800; }
+    .info-item p { margin: 5px 0 0; font-size: 12px; color: #555; }
+    
+    @media (max-width: 860px) {
+      .app-layout { flex-direction: column; padding: 16px; }
+      .sidebar-toc { width: 100%; position: static; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+  <div class="sidebar-toc">
+    <h3 id="tocTitle">📖 Содержание</h3>
+    <ul class="toc-list">
+      <li><a onclick="document.getElementById('calcSection').scrollIntoView({behavior:'smooth'})" id="tocCalc">🧮 Калькулятор</a></li>
+      <li><a onclick="document.getElementById('exprSection').scrollIntoView({behavior:'smooth'})" id="tocExpr">⚡ Выражения</a></li>
+      <li><a onclick="document.getElementById('infoSection').scrollIntoView({behavior:'smooth'})" id="tocInfo">📚 Справка</a></li>
+    </ul>
+    
+    <div class="lang-selector">
+      <button class="lang-btn" data-lang="ru">🇷🇺 Рус</button>
+      <button class="lang-btn" data-lang="en">🇬🇧 Eng</button>
+      <button class="lang-btn" data-lang="az">🇦🇿 Azər</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div id="calcSection">
+      <div style="display:flex;gap:30px;align-items:flex-start;justify-content:center;flex-wrap:wrap;">
+        <!-- Матрица A -->
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <p style="font-size:20px;font-family:'Nunito',sans-serif;margin:0;color:#800;" id="matrixALabel">Матрица A</p>
+            <select id="rowCountA" onchange="buildMatrix()">
+              <option>1</option><option>2</option><option selected>3</option>
+              <option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+            </select>
+            <span>×</span>
+            <select id="colCountA" onchange="buildMatrix()">
+              <option>1</option><option>2</option><option selected>3</option>
+              <option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+            </select>
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:8px;">
+            <svg id="bracketLeftA" width="20" height="80"><path d="M15,6 Q5,6 5,12 L5,68 Q5,74 15,74" fill="none" stroke="#000" stroke-width="1.5"/></svg>
+            <div id="matrixA"></div>
+            <svg id="bracketRightA" width="20" height="80"><path d="M5,6 Q15,6 15,12 L15,68 Q15,74 5,74" fill="none" stroke="#000" stroke-width="1.5"/></svg>
+          </div>
+          <button class="clear-btn" id="clearABtn" onclick="clearMatrix('A')">Очистить A</button>
+          <div class="unary-btns">
+            <button class="u-btn" id="traceABtn" onclick="unary('A','trace')">След</button>
+            <button class="u-btn" id="detABtn" onclick="unary('A','det')">Определитель</button>
+            <button class="u-btn" id="transposeABtn" onclick="unary('A','transpose')">Транспонировать</button>
+            <button class="u-btn" id="scalarABtn" onclick="openScalar('A')">× на число</button>
+            <button class="u-btn" id="rankABtn" onclick="unary('A','rank')">Ранг</button>
+            <button class="u-btn" id="invABtn" onclick="unary('A','inverse')">Обратная</button>
+            <button class="u-btn" id="powerABtn" onclick="openPower('A')">Aⁿ</button>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:50px;">
+          <button class="op-btn" onclick="calculate('add')">+</button>
+          <button class="op-btn" onclick="calculate('sub')">−</button>
+          <button class="op-btn" onclick="calculate('mul')">×</button>
+          <button class="swap-btn" onclick="swapMatrices()">⇄</button>
+        </div>
+
+        <!-- Матрица B -->
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <p style="font-size:20px;font-family:'Nunito',sans-serif;margin:0;color:#800;" id="matrixBLabel">Матрица B</p>
+            <select id="rowCountB" onchange="buildMatrix()">
+              <option>1</option><option>2</option><option selected>3</option>
+              <option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+            </select>
+            <span>×</span>
+            <select id="colCountB" onchange="buildMatrix()">
+              <option>1</option><option>2</option><option selected>3</option>
+              <option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+            </select>
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:8px;">
+            <svg id="bracketLeftB" width="20" height="80"><path d="M15,6 Q5,6 5,12 L5,68 Q5,74 15,74" fill="none" stroke="#000" stroke-width="1.5"/></svg>
+            <div id="matrixB"></div>
+            <svg id="bracketRightB" width="20" height="80"><path d="M5,6 Q15,6 15,12 L15,68 Q15,74 5,74" fill="none" stroke="#000" stroke-width="1.5"/></svg>
+          </div>
+          <button class="clear-btn" id="clearBBtn" onclick="clearMatrix('B')">Очистить B</button>
+          <div class="unary-btns">
+            <button class="u-btn" id="traceBBtn" onclick="unary('B','trace')">След</button>
+            <button class="u-btn" id="detBBtn" onclick="unary('B','det')">Определитель</button>
+            <button class="u-btn" id="transposeBBtn" onclick="unary('B','transpose')">Транспонировать</button>
+            <button class="u-btn" id="scalarBBtn" onclick="openScalar('B')">× на число</button>
+            <button class="u-btn" id="rankBBtn" onclick="unary('B','rank')">Ранг</button>
+            <button class="u-btn" id="invBBtn" onclick="unary('B','inverse')">Обратная</button>
+            <button class="u-btn" id="powerBBtn" onclick="openPower('B')">Bⁿ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultSection">
+      <div id="errorMsg"></div>
+      <div id="resultTitle"></div>
+      <div id="scalarResult"></div>
+      <div style="display:inline-flex;align-items:center;gap:8px;" id="matrixResultWrap">
+        <svg id="bracketLeftR" width="20" height="80"><path d="M15,6 Q5,6 5,12 L5,68 Q5,74 15,74" fill="none" stroke="#000" stroke-width="1.5"/></svg>
+        <div id="matrixResult"></div>
+        <svg id="bracketRightR" width="20" height="80"><path d="M5,6 Q15,6 15,12 L15,68 Q15,74 5,74" fill="none" stroke="#000" stroke-width="1.5"/></svg>
+      </div>
+    </div>
+
+    <div class="bottom-panel" id="exprSection">
+      <div class="expr-panel">
+        <div class="expr-title" id="exprTitle">⚡ Любое матричное выражение</div>
+        <div class="expr-input-group">
+          <input type="text" id="expressionInput" placeholder="5*A - 3*B   |   A*B + 2*A   |   (A+B)*0.7   |   A^3 - B^2   |   det(A)*B" value="5*A - 3*B" />
+          <button class="calc-btn" id="evalBtn" onclick="evaluateExpression()">Вычислить →</button>
+        </div>
+        <div class="expr-hint" id="exprHint">
+          💡 Пиши любые выражения: <code>2*A + 5*B</code> <code>A*B - A^2</code> <code>(A+B)*3</code> <code>det(A)*B</code> <code>inv(A)*A</code> <code>transpose(A)+B</code>
+        </div>
+      </div>
+
+      <div class="info-card" id="infoSection">
+        <div class="info-title" id="infoTitle">📘 Как работают операции с матрицами</div>
+        <div class="info-grid">
+          <div class="info-item"><strong id="op1Title">➕ Сложение (A+B)</strong><p id="op1Desc">Складываем соответствующие элементы. Требуются матрицы одинакового размера.</p></div>
+          <div class="info-item"><strong id="op2Title">➖ Вычитание (A−B)</strong><p id="op2Desc">Вычитаем соответствующие элементы. Требуются матрицы одинакового размера.</p></div>
+          <div class="info-item"><strong id="op3Title">✖️ Умножение (A×B)</strong><p id="op3Desc">Строка A на столбец B. Число столбцов A = числу строк B.</p></div>
+          <div class="info-item"><strong id="op4Title">🔢 Умножение на число (k·A)</strong><p id="op4Desc">Каждый элемент матрицы умножается на число.</p></div>
+          <div class="info-item"><strong id="op5Title">🔄 Транспонирование (Aᵀ)</strong><p id="op5Desc">Строки становятся столбцами.</p></div>
+          <div class="info-item"><strong id="op6Title">📊 Определитель (det A)</strong><p id="op6Desc">Числовая характеристика квадратной матрицы.</p></div>
+          <div class="info-item"><strong id="op7Title">⚡ Обратная матрица (A⁻¹)</strong><p id="op7Desc">A·A⁻¹ = E. Только для квадратных матриц с det≠0.</p></div>
+          <div class="info-item"><strong id="op8Title">📈 Ранг матрицы</strong><p id="op8Desc">Максимальное число линейно независимых строк.</p></div>
+          <div class="info-item"><strong id="op9Title">📏 След матрицы</strong><p id="op9Desc">Сумма элементов на главной диагонали.</p></div>
+          <div class="info-item"><strong id="op10Title">🔋 Возведение в степень (Aⁿ)</strong><p id="op10Desc">Последовательное умножение на себя. Только для квадратных.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="scalarModal">
+  <div id="scalarBox">
+    <p id="scalarLabel">Умножить матрицу на число</p>
+    <input id="scalarInput" type="number" value="1" />
+    <button id="scalarOk">Применить</button>
+  </div>
+  <div id="powerBox" style="display: none;">
+    <p id="powerLabel">Возвести матрицу в степень</p>
+    <input id="powerInput" type="number" value="2" step="1" min="0" />
+    <button id="powerOk">Применить</button>
+  </div>
+</div>
+
+<script>
+// Базовые функции матриц
+function buildGrid(id, rows, cols) {
+  let cont = document.getElementById(id);
+  cont.innerHTML = '';
+  cont.style.display = 'grid';
+  cont.style.gridTemplateColumns = `repeat(${cols}, 50px)`;
+  cont.style.gap = '4px';
+  cont.dataset.rows = rows; cont.dataset.cols = cols;
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      let inp = document.createElement('input');
+      inp.type = 'number'; inp.value = 0;
+      inp.className = 'matrix-input';
+      inp.dataset.row = i; inp.dataset.col = j; inp.dataset.matrixId = id;
+      inp.addEventListener('focus', function(){ if(this.value==='0') this.value=''; });
+      inp.addEventListener('blur',  function(){ if(this.value===''||this.value==='-') this.value=0; });
+      inp.addEventListener('keydown', arrowNav);
+      cont.appendChild(inp);
+    }
+  }
+  updateBrackets(id, rows);
+}
+function arrowNav(e) { let r=+this.dataset.row,c=+this.dataset.col,cont=document.getElementById(this.dataset.matrixId),R=+cont.dataset.rows,C=+cont.dataset.cols,tr=r,tc=c; if(e.key==='ArrowLeft') tc--; else if(e.key==='ArrowRight') tc++; else if(e.key==='ArrowUp') tr--; else if(e.key==='ArrowDown') tr++; else return; if(tr<0||tr>=R||tc<0||tc>=C) return; e.preventDefault(); let t=cont.querySelectorAll('input')[tr*C+tc]; if(t){t.focus();t.select();} }
+function updateBrackets(id, rows) { let suffix = (id==='matrixA')?'A':(id==='matrixB')?'B':'R'; let h=rows*48+16, p=6; ['Left','Right'].forEach(side=>{ let el=document.getElementById('bracket'+side+suffix); if(!el) return; el.setAttribute('height',h); el.setAttribute('viewBox','0 0 20 '+h); let x1=(side==='Left')?15:5, x2=(side==='Left')?5:15; let path=`M${x1},${p} Q${x2},${p} ${x2},${p+6} L${x2},${h-p-6} Q${x2},${h-p} ${x1},${h-p}`; el.querySelector('path').setAttribute('d', path); }); }
+function buildMatrix() { buildGrid('matrixA',+document.getElementById('rowCountA').value,+document.getElementById('colCountA').value); buildGrid('matrixB',+document.getElementById('rowCountB').value,+document.getElementById('colCountB').value); document.getElementById('resultSection').style.display='none'; }
+function readMatrix(id) { let cont=document.getElementById(id), rows=+cont.dataset.rows, cols=+cont.dataset.cols, inputs=cont.querySelectorAll('input'), M=[]; for(let i=0;i<rows;i++){ M[i]=[]; for(let j=0;j<cols;j++) M[i][j]=parseFloat(inputs[i*cols+j].value)||0; } return M; }
+function clearMatrix(which) { let cont=document.getElementById('matrix'+which); let inputs=cont.querySelectorAll('input'); for(let inp of inputs) inp.value=0; }
+function fmt(v) { if(Math.abs(v)<1e-9) return '0'; return parseFloat(v.toFixed(7)).toString(); }
+function showMatrix(M, title) { let rows=M.length, cols=M[0].length, cont=document.getElementById('matrixResult'); cont.innerHTML=''; cont.style.display='grid'; cont.style.gridTemplateColumns=`repeat(${cols}, 56px)`; cont.style.gap='4px'; for(let i=0;i<rows;i++) for(let j=0;j<cols;j++){ let d=document.createElement('div'); d.className='result-cell'; d.textContent=fmt(M[i][j]); cont.appendChild(d); } updateBrackets('matrixResult', rows); document.getElementById('resultTitle').innerHTML=title; document.getElementById('errorMsg').innerHTML=''; document.getElementById('scalarResult').style.display='none'; document.getElementById('matrixResultWrap').style.display='inline-flex'; document.getElementById('resultSection').style.display='block'; }
+function showScalar(val, title) { document.getElementById('resultTitle').innerHTML=title; document.getElementById('errorMsg').innerHTML=''; document.getElementById('scalarResult').innerHTML=fmt(val); document.getElementById('scalarResult').style.display='block'; document.getElementById('matrixResultWrap').style.display='none'; document.getElementById('resultSection').style.display='block'; }
+function showError(msg) { document.getElementById('errorMsg').innerHTML=msg; document.getElementById('resultTitle').innerHTML=''; document.getElementById('scalarResult').style.display='none'; document.getElementById('matrixResultWrap').style.display='none'; document.getElementById('resultSection').style.display='block'; }
+function copyM(M){ return M.map(r=>r.slice()); }
+function determinant(M) { let n=M.length; if(n===1) return M[0][0]; let A=copyM(M), sign=1; for(let col=0;col<n;col++){ let pivot=-1; for(let row=col;row<n;row++) if(Math.abs(A[row][col])>1e-12){pivot=row;break;} if(pivot<0) return 0; if(pivot!==col){ let tmp=A[col]; A[col]=A[pivot]; A[pivot]=tmp; sign*=-1; } for(let row=col+1;row<n;row++){ let f=A[row][col]/A[col][col]; for(let j=col;j<n;j++) A[row][j]-=f*A[col][j]; } } let d=sign; for(let i=0;i<n;i++) d*=A[i][i]; return d; }
+function rank(M) { let rows=M.length, cols=M[0].length, A=copyM(M), r=0; for(let col=0;col<cols&&r<rows;col++){ let pivot=-1; for(let row=r;row<rows;row++) if(Math.abs(A[row][col])>1e-12){pivot=row;break;} if(pivot<0) continue; let tmp=A[r]; A[r]=A[pivot]; A[pivot]=tmp; let lead=A[r][col]; for(let j=0;j<cols;j++) A[r][j]/=lead; for(let row=0;row<rows;row++) if(row!==r){ let f=A[row][col]; for(let j=0;j<cols;j++) A[row][j]-=f*A[r][j]; } r++; } return r; }
+function inverse(M) { let n=M.length, A=[]; for(let i=0;i<n;i++){ A[i]=M[i].slice(); for(let j=0;j<n;j++) A[i].push(i===j?1:0); } for(let col=0;col<n;col++){ let pivot=-1; for(let row=col;row<n;row++) if(Math.abs(A[row][col])>1e-12){pivot=row;break;} if(pivot<0) return null; if(pivot!==col){ let tmp=A[col]; A[col]=A[pivot]; A[pivot]=tmp; } let lead=A[col][col]; for(let j=0;j<2*n;j++) A[col][j]/=lead; for(let row=0;row<n;row++) if(row!==col){ let f=A[row][col]; for(let j=0;j<2*n;j++) A[row][j]-=f*A[col][j]; } } return A.map(row=>row.slice(n)); }
+function multiplyMatrices(A,B){ let rA=A.length,cA=A[0].length,cB=B[0].length,res=[]; for(let i=0;i<rA;i++){ res[i]=[]; for(let j=0;j<cB;j++){ let s=0; for(let k=0;k<cA;k++) s+=A[i][k]*B[k][j]; res[i][j]=s; } } return res; }
+function matrixPower(M,p){ let n=M.length,res=Array(n).fill().map((_,i)=>Array(n).fill().map((_,j)=>i===j?1:0)),base=copyM(M); while(p>0){ if(p&1) res=multiplyMatrices(res,base); base=multiplyMatrices(base,base); p>>=1; } return res; }
+function unary(which,op){ let M=readMatrix('matrix'+which),rows=M.length,cols=M[0].length,label=which; if(op==='trace'){ if(rows!==cols){ showError('След только для квадратной матрицы'); return; } let tr=0; for(let i=0;i<rows;i++) tr+=M[i][i]; showScalar(tr,`След ${label}`); } else if(op==='det'){ if(rows!==cols){ showError('Определитель только для квадратной'); return; } showScalar(determinant(M),`det(${label})`); } else if(op==='transpose'){ let T=[]; for(let j=0;j<cols;j++){ T[j]=[]; for(let i=0;i<rows;i++) T[j][i]=M[i][j]; } showMatrix(T,`${label}ᵀ`); } else if(op==='rank') showScalar(rank(M),`Ранг ${label}`); else if(op==='inverse'){ if(rows!==cols){ showError('Обратная только для квадратной'); return; } let inv=inverse(M); if(!inv){ showError('Матрица вырождена'); return; } showMatrix(inv,`${label}⁻¹`); } }
+let _scalarTarget='A',_powerTarget='A';
+function openPower(w){ _powerTarget=w; document.getElementById('powerBox').style.display='flex'; document.getElementById('scalarBox').style.display='none'; document.getElementById('scalarModal').classList.add('open'); document.getElementById('powerInput').value=2; }
+function openScalar(w){ _scalarTarget=w; document.getElementById('scalarBox').style.display='flex'; document.getElementById('powerBox').style.display='none'; document.getElementById('scalarModal').classList.add('open'); document.getElementById('scalarInput').value=1; }
+document.getElementById('powerOk').addEventListener('click',()=>{ let p=parseInt(document.getElementById('powerInput').value); if(isNaN(p)||p<0){ showError('Степень ≥0'); return; } let M=readMatrix('matrix'+_powerTarget); if(M.length!==M[0].length){ showError('Квадратная матрица'); return; } document.getElementById('scalarModal').classList.remove('open'); showMatrix(matrixPower(M,p),`${_powerTarget}<sup>${p}</sup>`); });
+document.getElementById('scalarOk').addEventListener('click',()=>{ let k=parseFloat(document.getElementById('scalarInput').value); if(isNaN(k)){ alert('Введите число'); return; } document.getElementById('scalarModal').classList.remove('open'); let M=readMatrix('matrix'+_scalarTarget); showMatrix(M.map(row=>row.map(v=>v*k)),`${k} · ${_scalarTarget}`); });
+document.getElementById('scalarModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) e.currentTarget.classList.remove('open'); });
+function calculate(op){ let A=readMatrix('matrixA'), B=readMatrix('matrixB'), rA=A.length,cA=A[0].length,rB=B.length,cB=B[0].length; if(op==='add'||op==='sub'){ if(rA!==rB||cA!==cB){ showError(`Размеры не совпадают: A(${rA}×${cA}) и B(${rB}×${cB})`); return; } let R=A.map((row,i)=>row.map((v,j)=> op==='add'? v+B[i][j] : v-B[i][j])); showMatrix(R,op==='add'?'A + B':'A − B'); } else if(op==='mul'){ if(cA!==rB){ showError(`Умножение невозможно: столбцы A(${cA}) ≠ строк B(${rB})`); return; } showMatrix(multiplyMatrices(A,B),'A × B'); } }
+function swapMatrices(){ let sRA=document.getElementById('rowCountA'),sCA=document.getElementById('colCountA'),sRB=document.getElementById('rowCountB'),sCB=document.getElementById('colCountB'); let vA=readMatrix('matrixA').flat(), vB=readMatrix('matrixB').flat(); let t=sRA.value; sRA.value=sRB.value; sRB.value=t; t=sCA.value; sCA.value=sCB.value; sCB.value=t; buildMatrix(); let inA=document.getElementById('matrixA').querySelectorAll('input'), inB=document.getElementById('matrixB').querySelectorAll('input'); for(let i=0;i<inA.length&&i<vB.length;i++) inA[i].value=vB[i]??0; for(let i=0;i<inB.length&&i<vA.length;i++) inB[i].value=vA[i]??0; }
+
+// ПОЛНЫЙ ПАРСЕР ЛЮБЫХ ВЫРАЖЕНИЙ
+function evaluateExpression() {
+  let expr = document.getElementById('expressionInput').value.trim();
+  if(!expr) { showError('Введите выражение'); return; }
+  let A = readMatrix('matrixA'), B = readMatrix('matrixB');
+  
+  try {
+    let processed = expr.replace(/det\(A\)/gi, 'detA').replace(/det\(B\)/gi, 'detB')
+                       .replace(/inv\(A\)/gi, 'invA').replace(/inv\(B\)/gi, 'invB')
+                       .replace(/transpose\(A\)/gi, 'transA').replace(/transpose\(B\)/gi, 'transB')
+                       .replace(/rank\(A\)/gi, 'rankA').replace(/rank\(B\)/gi, 'rankB')
+                       .replace(/trace\(A\)/gi, 'traceA').replace(/trace\(B\)/gi, 'traceB');
+    
+    let tokens = [], i = 0;
+    while(i < processed.length) {
+      let ch = processed[i];
+      if(ch === ' ') { i++; continue; }
+      if('+-*^()'.includes(ch)) { tokens.push(ch); i++; continue; }
+      if((ch >= '0' && ch <= '9') || ch === '.' || (ch === '-' && (i === 0 || '+-*^('.includes(processed[i-1])))) {
+        let num = '';
+        while(i < processed.length && ((processed[i] >= '0' && processed[i] <= '9') || processed[i] === '.' || processed[i] === '-')) {
+          num += processed[i]; i++;
+        }
+        tokens.push(parseFloat(num));
+        continue;
+      }
+      if(processed.substr(i,4) === 'detA') { tokens.push('detA'); i+=4; continue; }
+      if(processed.substr(i,4) === 'detB') { tokens.push('detB'); i+=4; continue; }
+      if(processed.substr(i,4) === 'invA') { tokens.push('invA'); i+=4; continue; }
+      if(processed.substr(i,4) === 'invB') { tokens.push('invB'); i+=4; continue; }
+      if(processed.substr(i,6) === 'transA') { tokens.push('transA'); i+=6; continue; }
+      if(processed.substr(i,6) === 'transB') { tokens.push('transB'); i+=6; continue; }
+      if(processed.substr(i,5) === 'rankA') { tokens.push('rankA'); i+=5; continue; }
+      if(processed.substr(i,5) === 'rankB') { tokens.push('rankB'); i+=5; continue; }
+      if(processed.substr(i,6) === 'traceA') { tokens.push('traceA'); i+=6; continue; }
+      if(processed.substr(i,6) === 'traceB') { tokens.push('traceB'); i+=6; continue; }
+      if(ch === 'A') { tokens.push('A'); i++; continue; }
+      if(ch === 'B') { tokens.push('B'); i++; continue; }
+      showError(`Недопустимый символ: ${ch}`); return;
+    }
+    
+    let output = [], stack = [], prec = {'+':1, '-':1, '*':2, '^':3};
+    for(let tok of tokens) {
+      if(typeof tok === 'number') output.push(tok);
+      else if(['A','B','detA','detB','invA','invB','transA','transB','rankA','rankB','traceA','traceB'].includes(tok)) output.push(tok);
+      else if(tok === '(') stack.push(tok);
+      else if(tok === ')') {
+        while(stack.length && stack[stack.length-1] !== '(') output.push(stack.pop());
+        if(stack.length && stack[stack.length-1] === '(') stack.pop();
+        else { showError('Скобки не сбалансированы'); return; }
+      } else if('+-*^'.includes(tok)) {
+        while(stack.length && stack[stack.length-1] !== '(' && prec[stack[stack.length-1]] >= prec[tok]) output.push(stack.pop());
+        stack.push(tok);
+      }
+    }
+    while(stack.length) output.push(stack.pop());
+    
+    let evalStack = [];
+    for(let t of output) {
+      if(typeof t === 'number') evalStack.push(t);
+      else if(t === 'A') evalStack.push(A);
+      else if(t === 'B') evalStack.push(B);
+      else if(t === 'detA') { if(A.length !== A[0].length) throw new Error('det(A): нужна квадратная матрица'); evalStack.push(determinant(A)); }
+      else if(t === 'detB') { if(B.length !== B[0].length) throw new Error('det(B): нужна квадратная матрица'); evalStack.push(determinant(B)); }
+      else if(t === 'invA') { if(A.length !== A[0].length) throw new Error('inv(A): нужна квадратная матрица'); let inv = inverse(A); if(!inv) throw new Error('inv(A): матрица вырождена'); evalStack.push(inv); }
+      else if(t === 'invB') { if(B.length !== B[0].length) throw new Error('inv(B): нужна квадратная матрица'); let inv = inverse(B); if(!inv) throw new Error('inv(B): матрица вырождена'); evalStack.push(inv); }
+      else if(t === 'transA') { let T = []; for(let j=0;j<A[0].length;j++){ T[j]=[]; for(let i=0;i<A.length;i++) T[j][i]=A[i][j]; } evalStack.push(T); }
+      else if(t === 'transB') { let T = []; for(let j=0;j<B[0].length;j++){ T[j]=[]; for(let i=0;i<B.length;i++) T[j][i]=B[i][j]; } evalStack.push(T); }
+      else if(t === 'rankA') evalStack.push(rank(A));
+      else if(t === 'rankB') evalStack.push(rank(B));
+      else if(t === 'traceA') { if(A.length !== A[0].length) throw new Error('trace(A): нужна квадратная матрица'); let tr=0; for(let i=0;i<A.length;i++) tr+=A[i][i]; evalStack.push(tr); }
+      else if(t === 'traceB') { if(B.length !== B[0].length) throw new Error('trace(B): нужна квадратная матрица'); let tr=0; for(let i=0;i<B.length;i++) tr+=B[i][i]; evalStack.push(tr); }
+      else {
+        if(evalStack.length < 2) { showError('Недостаточно операндов'); return; }
+        let b = evalStack.pop(), a = evalStack.pop();
+        if(t === '+') {
+          if(!isMatrix(a) || !isMatrix(b) || a.length!==b.length || a[0].length!==b[0].length) throw new Error('Сложение: размеры должны совпадать');
+          evalStack.push(a.map((row,i)=>row.map((v,j)=>v+b[i][j])));
+        } else if(t === '-') {
+          if(!isMatrix(a) || !isMatrix(b) || a.length!==b.length || a[0].length!==b[0].length) throw new Error('Вычитание: размеры должны совпадать');
+          evalStack.push(a.map((row,i)=>row.map((v,j)=>v-b[i][j])));
+        } else if(t === '*') {
+          if(typeof a === 'number' && isMatrix(b)) {
+            evalStack.push(b.map(row=>row.map(v=>v*a)));
+          } else if(isMatrix(a) && typeof b === 'number') {
+            evalStack.push(a.map(row=>row.map(v=>v*b)));
+          } else if(isMatrix(a) && isMatrix(b)) {
+            if(a[0].length !== b.length) throw new Error(`Умножение: столбцы A(${a[0].length}) ≠ строк B(${b.length})`);
+            evalStack.push(multiplyMatrices(a,b));
+          } else {
+            throw new Error('Умножение возможно только для матриц или матрицы на число');
+          }
+        } else if(t === '^') {
+          if(!isMatrix(a) || a.length !== a[0].length) throw new Error('Степень только для квадратных матриц');
+          let exp = b; if(typeof exp !== 'number' || !Number.isInteger(exp) || exp<0) throw new Error('Степень должна быть целым числом ≥0');
+          evalStack.push(matrixPower(a,exp));
+        }
+      }
+    }
+    if(evalStack.length !== 1) { showError('Некорректное выражение'); return; }
+    let res = evalStack[0];
+    if(typeof res === 'number') showScalar(res, expr);
+    else if(res && res.length) showMatrix(res, expr);
+    else showError('Не удалось вычислить');
+  } catch(e) { showError('Ошибка: ' + e.message); }
+}
+function isMatrix(x) { return Array.isArray(x) && x.length && Array.isArray(x[0]); }
+
+// Мультиязычность
+let lang = 'ru';
+const translations = {
+  ru: { 
+    tocTitle:"📖 Содержание", tocCalc:"🧮 Калькулятор", tocExpr:"⚡ Выражения", tocInfo:"📚 Справка",
+    matrixALabel:"Матрица A", matrixBLabel:"Матрица B", clearA:"Очистить A", clearB:"Очистить B",
+    trace:"След", det:"Определитель", transpose:"Транспонировать", scalar:"× на число", rank:"Ранг", inverse:"Обратная", powerA:"Aⁿ", powerB:"Bⁿ",
+    exprTitle:"⚡ Любое матричное выражение", evalBtn:"Вычислить →",
+    placeholder:"5*A - 3*B   |   A*B + 2*A   |   (A+B)*0.7   |   A^3 - B^2   |   det(A)*B",
+    exprHint:"💡 Пиши любые выражения: 2*A + 5*B   A*B - A^2   (A+B)*3   det(A)*B   inv(A)*A   transpose(A)+B",
+    infoTitle:"📘 Как работают операции с матрицами",
+    op1:"➕ Сложение (A+B)", op1d:"Складываем соответствующие элементы. Требуются матрицы одинакового размера.",
+    op2:"➖ Вычитание (A−B)", op2d:"Вычитаем соответствующие элементы. Требуются матрицы одинакового размера.",
+    op3:"✖️ Умножение (A×B)", op3d:"Строка A на столбец B. Число столбцов A = числу строк B.",
+    op4:"🔢 Умножение на число (k·A)", op4d:"Каждый элемент матрицы умножается на число.",
+    op5:"🔄 Транспонирование (Aᵀ)", op5d:"Строки становятся столбцами.",
+    op6:"📊 Определитель (det A)", op6d:"Числовая характеристика квадратной матрицы.",
+    op7:"⚡ Обратная матрица (A⁻¹)", op7d:"A·A⁻¹ = E. Только для квадратных матриц с det≠0.",
+    op8:"📈 Ранг матрицы", op8d:"Максимальное число линейно независимых строк.",
+    op9:"📏 След матрицы", op9d:"Сумма элементов на главной диагонали.",
+    op10:"🔋 Возведение в степень (Aⁿ)", op10d:"Последовательное умножение на себя. Только для квадратных." 
+  },
+  en: { 
+    tocTitle:"📖 Contents", tocCalc:"🧮 Calculator", tocExpr:"⚡ Expressions", tocInfo:"📚 Help",
+    matrixALabel:"Matrix A", matrixBLabel:"Matrix B", clearA:"Clear A", clearB:"Clear B",
+    trace:"Trace", det:"Determinant", transpose:"Transpose", scalar:"× scalar", rank:"Rank", inverse:"Inverse", powerA:"Aⁿ", powerB:"Bⁿ",
+    exprTitle:"⚡ Any matrix expression", evalBtn:"Compute →",
+    placeholder:"5*A - 3*B   |   A*B + 2*A   |   (A+B)*0.7   |   A^3 - B^2   |   det(A)*B",
+    exprHint:"💡 Write any expression: 2*A + 5*B   A*B - A^2   (A+B)*3   det(A)*B   inv(A)*A   transpose(A)+B",
+    infoTitle:"📘 Matrix Operations Guide",
+    op1:"➕ Addition (A+B)", op1d:"Add corresponding elements. Matrices must have same size.",
+    op2:"➖ Subtraction (A−B)", op2d:"Subtract corresponding elements. Same size required.",
+    op3:"✖️ Multiplication (A×B)", op3d:"Row of A times column of B. Columns of A = rows of B.",
+    op4:"🔢 Scalar multiplication (k·A)", op4d:"Multiply each element by k.",
+    op5:"🔄 Transpose (Aᵀ)", op5d:"Rows become columns.",
+    op6:"📊 Determinant (det A)", op6d:"Numeric characteristic of square matrix.",
+    op7:"⚡ Inverse matrix (A⁻¹)", op7d:"A·A⁻¹ = E. Square matrices with det≠0 only.",
+    op8:"📈 Rank", op8d:"Maximum number of linearly independent rows.",
+    op9:"📏 Trace", op9d:"Sum of diagonal elements.",
+    op10:"🔋 Power (Aⁿ)", op10d:"Repeated multiplication. Square matrices only." 
+  },
+  az: { 
+    tocTitle:"📖 Məzmun", tocCalc:"🧮 Kalkulyator", tocExpr:"⚡ İfadələr", tocInfo:"📚 Yardım",
+    matrixALabel:"Matris A", matrixBLabel:"Matris B", clearA:"Təmizlə A", clearB:"Təmizlə B",
+    trace:"İz", det:"Determinant", transpose:"Transponir", scalar:"× ədəd", rank:"Ranq", inverse:"Tərs", powerA:"Aⁿ", powerB:"Bⁿ",
+    exprTitle:"⚡ İstənilən matris ifadəsi", evalBtn:"Hesabla →",
+    placeholder:"5*A - 3*B   |   A*B + 2*A   |   (A+B)*0.7   |   A^3 - B^2   |   det(A)*B",
+    exprHint:"💡 İstənilən ifadə: 2*A + 5*B   A*B - A^2   (A+B)*3   det(A)*B   inv(A)*A   transpose(A)+B",
+    infoTitle:"📘 Matris əməliyyatları",
+    op1:"➕ Toplama (A+B)", op1d:"Uyğun elementlər toplanır. Matrislər eyni ölçüdə olmalıdır.",
+    op2:"➖ Çıxma (A−B)", op2d:"Uyğun elementlər çıxılır. Matrislər eyni ölçüdə olmalıdır.",
+    op3:"✖️ Vurma (A×B)", op3d:"A-nın sətri B-nin sütununa vurulur. A-nın sütunları = B-nin sətirləri.",
+    op4:"🔢 Ədədə vurma (k·A)", op4d:"Hər bir element k-ə vurulur.",
+    op5:"🔄 Transponirləmə (Aᵀ)", op5d:"Sətirlər sütun olur.",
+    op6:"📊 Determinant (det A)", op6d:"Kvadrat matrisin ədədi xarakteristikası.",
+    op7:"⚡ Tərs matris (A⁻¹)", op7d:"A·A⁻¹ = E. Yalnız det≠0 olan kvadrat matrislər üçün.",
+    op8:"📈 Ranq", op8d:"Xətti asılı olmayan sətirlərin maksimum sayı.",
+    op9:"📏 İz", op9d:"Diaqonal elementlərin cəmi: tr(A) = Σ aᵢᵢ.",
+    op10:"🔋 Qüvvət (Aⁿ)", op10d:"Matrisin öz-özünə ardıcıl vurulması. Yalnız kvadrat matrislər." 
+  }
+};
+function applyLanguage() {
+  let t = translations[lang];
+  document.getElementById('tocTitle').innerText = t.tocTitle;
+  document.getElementById('tocCalc').innerText = t.tocCalc;
+  document.getElementById('tocExpr').innerText = t.tocExpr;
+  document.getElementById('tocInfo').innerText = t.tocInfo;
+  document.getElementById('matrixALabel').innerText = t.matrixALabel;
+  document.getElementById('matrixBLabel').innerText = t.matrixBLabel;
+  document.getElementById('clearABtn').innerText = t.clearA;
+  document.getElementById('clearBBtn').innerText = t.clearB;
+  document.getElementById('traceABtn').innerText = t.trace; document.getElementById('traceBBtn').innerText = t.trace;
+  document.getElementById('detABtn').innerText = t.det; document.getElementById('detBBtn').innerText = t.det;
+  document.getElementById('transposeABtn').innerText = t.transpose; document.getElementById('transposeBBtn').innerText = t.transpose;
+  document.getElementById('scalarABtn').innerText = t.scalar; document.getElementById('scalarBBtn').innerText = t.scalar;
+  document.getElementById('rankABtn').innerText = t.rank; document.getElementById('rankBBtn').innerText = t.rank;
+  document.getElementById('invABtn').innerText = t.inverse; document.getElementById('invBBtn').innerText = t.inverse;
+  document.getElementById('powerABtn').innerHTML = t.powerA; document.getElementById('powerBBtn').innerHTML = t.powerB;
+  document.getElementById('exprTitle').innerHTML = t.exprTitle;
+  document.getElementById('evalBtn').innerHTML = t.evalBtn;
+  document.getElementById('exprHint').innerHTML = t.exprHint;
+  document.getElementById('expressionInput').placeholder = t.placeholder;
+  document.getElementById('infoTitle').innerHTML = t.infoTitle;
+  document.getElementById('op1Title').innerHTML = t.op1; document.getElementById('op1Desc').innerHTML = t.op1d;
+  document.getElementById('op2Title').innerHTML = t.op2; document.getElementById('op2Desc').innerHTML = t.op2d;
+  document.getElementById('op3Title').innerHTML = t.op3; document.getElementById('op3Desc').innerHTML = t.op3d;
+  document.getElementById('op4Title').innerHTML = t.op4; document.getElementById('op4Desc').innerHTML = t.op4d;
+  document.getElementById('op5Title').innerHTML = t.op5; document.getElementById('op5Desc').innerHTML = t.op5d;
+  document.getElementById('op6Title').innerHTML = t.op6; document.getElementById('op6Desc').innerHTML = t.op6d;
+  document.getElementById('op7Title').innerHTML = t.op7; document.getElementById('op7Desc').innerHTML = t.op7d;
+  document.getElementById('op8Title').innerHTML = t.op8; document.getElementById('op8Desc').innerHTML = t.op8d;
+  document.getElementById('op9Title').innerHTML = t.op9; document.getElementById('op9Desc').innerHTML = t.op9d;
+  document.getElementById('op10Title').innerHTML = t.op10; document.getElementById('op10Desc').innerHTML = t.op10d;
+  document.querySelectorAll('.lang-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.lang === lang); });
+}
+document.querySelectorAll('.lang-btn').forEach(btn => { btn.addEventListener('click', () => { lang = btn.dataset.lang; applyLanguage(); }); });
+buildMatrix(); applyLanguage();
+</script>
+</body>
+</html>
